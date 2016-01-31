@@ -1,3 +1,40 @@
+local subscriptions = {}
+
+function subscribe(timeLength, event, callback)
+    local ends = (tmr.now()/1000) +timeLength
+    local Subscription = {ends = ends, callback=callback }
+    function Subscription.isOutdated(self)
+        return (tmr.now()/1000)>=self.ends
+    end
+    if not subscriptions[event] then
+        subscriptions[event] = {}
+    end
+    subscriptions[event][callback] = Subscription
+end
+
+function unsubscribe(event, callback)
+    if subscriptions[event] then
+        for currCallback,value in ipairs(subscriptions[event]) do
+            if value.isOutdated(value) or value.callback == callback then
+                table.remove(subscriptions[event], index)
+            end
+        end
+    end
+end
+
+function getServiceSubscriptions(event)
+    if subscriptions[event] then
+        for currCallback,value in ipairs(subscriptions[event]) do
+            if value.isOutdated(value) then
+                table.remove(subscriptions[event], currCallback)
+            end
+        end
+        return subscriptions[event]
+    else
+        return {}
+    end
+end
+
 net.multicastJoin(wifi.sta.getip(), "239.255.255.250")
 
 local ssdp_notify = "NOTIFY * HTTP/1.1\r\n"..

@@ -27,6 +27,17 @@ return function(port)
                 print(uri)
                 print(args["event"])
                 print(args["Callback"])
+                subscribe(timeLength, args["event"], args["Callback"])
+
+                connectionThread = coroutine.create(dofile("httpserver-ok.lc"))
+                coroutine.resume(connectionThread, connection, args)
+            end
+
+            local function onUnsubscribe(connection, uri, args)
+                print(uri)
+                print(args["event"])
+                print(args["Callback"])
+                unsubscribe(args["event"], args["Callback"])
 
                 connectionThread = coroutine.create(dofile("httpserver-ok.lc"))
                 coroutine.resume(connectionThread, connection, args)
@@ -138,6 +149,9 @@ return function(port)
                     onPost(connection, path, args, payload:match("\r\n\r\n(.*)"))
                 elseif method =="SUBSCRIBE" then
                     onSubscribe(connection, path, args)
+
+                elseif method =="UNSUBSCRIBE" then
+                    onUnsubscribe(connection, path, args)
                 else
                     local args = { code = 400, errorString = "Bad Request" }
                     local fileServeFunction = dofile("httpserver-error.lc")

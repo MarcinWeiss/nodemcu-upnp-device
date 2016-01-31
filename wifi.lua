@@ -1,2 +1,2 @@
 wifi.setmode(wifi.STATION)
-wifi.sta.config("Neverland", "Apollo13")
+wifi.sta.config("SSID", "PASSWORD")
