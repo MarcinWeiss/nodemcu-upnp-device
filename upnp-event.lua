@@ -1,0 +1,10 @@
+return function(targetip, targetUrl, portm, message)
+    local sk=net.createConnection(net.TCP, 0)
+    sk:on("receive", function(sck, c)
+        print(c)
+    end )
+    sk:on("connection", function(sck)
+        sck:send(message)
+    end)
+    sk:connect(portm,targetip)
+end

@@ -1,0 +1,34 @@
+<?xml version='1.0'?>
+<root xmlns='urn:schemas-upnp-org:device-1-0'>
+    <specVersion>
+        <major>1</major>
+        <minor>0</minor>
+    </specVersion>
+    <device>
+        <deviceType>urn:schemas-upnp-org:device:ColorLight:1</deviceType>
+        <friendlyName>RGB light</friendlyName>
+        <manufacturer>Medrawd ltd.</manufacturer>
+        <modelName>RGB + W Led strip light</modelName>
+        <modelNumber>v1</modelNumber>
+        <UDN>uuid:49c893b4-2fe9-11e5-9751-0024e820e50e</UDN>
+        <iconList>
+            <icon>
+                <mimetype>image/png</mimetype>
+                <width>48</width>
+                <height>48</height>
+                <depth>8</depth>
+                <url>/bulb.png</url>
+            </icon>
+        </iconList>
+        <serviceList>
+            <service>
+                <serviceType>urn:schemas-upnp-org:service:ChangeColor:1</serviceType>
+                <serviceId>urn:upnp-org:serviceId:ChangeColor</serviceId>
+                <SCPDURL>/ChangeColorDesc.xml</SCPDURL>
+                <controlURL>/</controlURL>
+                <eventSubURL>/</eventSubURL>
+            </service>
+        </serviceList>
+        <presentationURL>/</presentationURL>
+    </device>
+</root>
