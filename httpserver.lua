@@ -23,23 +23,37 @@ return function(port)
                 end
             end
 
-            local function onSubscribe(connection, uri, args)
-                print(uri)
-                print(args["event"])
-                print(args["Callback"])
-                subscribe(timeLength, args["event"], args["Callback"])
+            local function onSubscribe(connection, uri, args, reqIp)
+                local callback = args["Callback"]:match("<(.*)>")
+                local timeoutUnit, timeout = args["Timeout"]:match("%s?(.*)%-(.*)$")
+                debug(uri)
+                debug(callback)
+                debug(timeout)
+                debug(reqIp)
+                if timeoutUnit=="Minute" then
+                    timeout = timeout*60
+                elseif timeout=="Hout" then
+                    timeout = timeout*360
+                end
+                subscribe(timeout, uri, callback, reqIp)
 
-                connectionThread = coroutine.create(dofile("httpserver-ok.lc"))
+                local fileServeFunction = function(connection, args)
+                    connection:send("HTTP/1.0 200 OK\r\nServer: nodemcu-httpserver\r\nCONTENT-LENGTH: 0\r\nTIMEOUT: "..
+                            timeoutUnit.."-"..timeout.."\r\nSID: uuid:"..wifi.ap.getmac().."\r\nConnection: close\r\n\r\n")
+                end
+                connectionThread = coroutine.create(fileServeFunction)
                 coroutine.resume(connectionThread, connection, args)
             end
 
-            local function onUnsubscribe(connection, uri, args)
-                print(uri)
-                print(args["event"])
-                print(args["Callback"])
-                unsubscribe(args["event"], args["Callback"])
+            local function onUnsubscribe(connection, uri, args, reqIp)
+                debug(uri)
+                debug(reqIp)
+                unsubscribe(uri, reqIp)
 
-                connectionThread = coroutine.create(dofile("httpserver-ok.lc"))
+                local fileServeFunction = function(connection, args)
+                    connection:send("HTTP/1.0 200 OK\r\nServer: nodemcu-httpserver\r\nCONTENT-LENGTH: 0\r\nConnection: close\r\n\r\n")
+                end
+                connectionThread = coroutine.create(fileServeFunction)
                 coroutine.resume(connectionThread, connection, args)
             end
 
@@ -50,8 +64,8 @@ return function(port)
                 for k,v in pairs(xmlargs) do
                     args[k] = v
                 end
-                print(uri)
-                print(ServiceId)
+                debug(uri)
+                debug(ServiceId)
                 for k,v in pairs(args) do
                     print(k.." "..v)
                 end
@@ -114,6 +128,7 @@ return function(port)
             local function onReceive(connection, payload)
                 collectgarbage()
                 local auth
+                debug("-------")
                 debug("new request")
                 debug(payload)
                 local reqIp = connection:getpeer()
@@ -148,10 +163,10 @@ return function(port)
                     debug("post")
                     onPost(connection, path, args, payload:match("\r\n\r\n(.*)"))
                 elseif method =="SUBSCRIBE" then
-                    onSubscribe(connection, path, args)
+                    onSubscribe(connection, path, args, reqIp)
 
                 elseif method =="UNSUBSCRIBE" then
-                    onUnsubscribe(connection, path, args)
+                    onUnsubscribe(connection, path, args, reqIp)
                 else
                     local args = { code = 400, errorString = "Bad Request" }
                     local fileServeFunction = dofile("httpserver-error.lc")

@@ -7,8 +7,8 @@ local function getContentLength(isHeadless, request)
 end
 
 return function(request)
-    print("parsing request")
-    print(request)
+    debug("parsing request")
+    debug(request)
     local method, path, varsRaw = request:match("([A-Z]+) /([^%?]*)%??(.*) HTTP")
 
     local isHeadless = (method ==nil and path == nil and varsRaw == nil);
@@ -27,10 +27,10 @@ return function(request)
     local headerContentLength = vars["Content-Length"] and  tonumber(vars["Content-Length"]) or 0
     local contentLength = getContentLength(isHeadless, request)
     local isComplete = not isHeadless and headerContentLength==contentLength
-    print(headerContentLength)
-    print(contentLength)
-    print(isComplete)
-    print(isHeadless)
+    debug(headerContentLength)
+    debug(contentLength)
+    debug(isComplete)
+    debug(isHeadless)
 
     return method, path, vars, isComplete, isHeadless, contentLength
 end

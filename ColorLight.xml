@@ -10,7 +10,7 @@
         <manufacturer>Medrawd ltd.</manufacturer>
         <modelName>RGB + W Led strip light</modelName>
         <modelNumber>v1</modelNumber>
-        <UDN>uuid:49c893b4-2fe9-11e5-9751-0024e820e50e</UDN>
+        <UDN>uuid:UUID</UDN>
         <iconList>
             <icon>
                 <mimetype>image/png</mimetype>
@@ -25,8 +25,8 @@
                 <serviceType>urn:schemas-upnp-org:service:ChangeColor:1</serviceType>
                 <serviceId>urn:upnp-org:serviceId:ChangeColor</serviceId>
                 <SCPDURL>/ChangeColorDesc.xml</SCPDURL>
-                <controlURL>/</controlURL>
-                <eventSubURL>/</eventSubURL>
+                <controlURL>/ChangeColor</controlURL>
+                <eventSubURL>/ChangeColor</eventSubURL>
             </service>
         </serviceList>
         <presentationURL>/</presentationURL>

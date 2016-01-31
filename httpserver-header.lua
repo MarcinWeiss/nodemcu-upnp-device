@@ -52,14 +52,10 @@ return function(connection, code, extension)
         return header
     end
 
-    print(extension)
     if extension then
-        print("1")
         local mimeType = getMimeType(extension)
-        print(mimeType)
         connection:send(getHeader(code, mimeType))
     else
-        print("2")
         connection:send(getHeader(code))
     end
 end

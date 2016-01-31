@@ -13,11 +13,38 @@ end
 
 local serverFiles = { 'httpserver.lua', 'httpserver-basicauth.lua', 'httpserver-b64decode.lua', 'httpserver-request.lua',
     'httpserver-static.lua', 'httpserver-header.lua', 'httpserver-error.lua', 'upnp.lua', 'core.lua',
-    'wifi.lua', 'xml.lua', 'http-node_info.lua', 'http-file_list.lua', 'httpserver-ok.lua'}
+    'wifi.lua', 'xml.lua', 'http-node_info.lua', 'http-file_list.lua'}
 for _, f in ipairs(serverFiles) do compileAndRemoveIfNeeded(f) end
+
+local setUuidInXml = function(filename)
+    file.rename(filename, filename.."-temp")
+    file.close()
+
+    file.open(filename.."-temp", "r")
+    local inData = {}
+    local instr = file.readline()
+    while instr do
+        table.insert(inData, instr)
+        instr = file.readline()
+    end
+    file.close()
+
+
+    file.open(filename, "w")
+    for _, line in ipairs(inData) do
+        file.write(string.gsub(line, "<UDN>uuid:.-</UDN>", "<UDN>uuid:"..wifi.ap.getmac().."</UDN>"))
+    end
+    file.close()
+
+    file.remove(filename.."-temp")
+end
+local xmlFiles = { 'ColorLight.xml'}
+for _, f in ipairs(xmlFiles) do setUuidInXml(f) end
 
 compileAndRemoveIfNeeded = nil
 serverFiles = nil
+setUuidInXml = nil
+xmlFiles = nil
 collectgarbage()
 
 -- Connect to the WiFi access point.

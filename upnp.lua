@@ -1,35 +1,35 @@
 local subscriptions = {}
 
-function subscribe(timeLength, event, callback)
+function subscribe(timeLength, service, callback, ip)
     local ends = (tmr.now()/1000) +timeLength
     local Subscription = {ends = ends, callback=callback }
     function Subscription.isOutdated(self)
         return (tmr.now()/1000)>=self.ends
     end
-    if not subscriptions[event] then
-        subscriptions[event] = {}
+    if not subscriptions[service] then
+        subscriptions[service] = {}
     end
-    subscriptions[event][callback] = Subscription
+    subscriptions[service][ip] = Subscription
 end
 
-function unsubscribe(event, callback)
-    if subscriptions[event] then
-        for currCallback,value in ipairs(subscriptions[event]) do
-            if value.isOutdated(value) or value.callback == callback then
-                table.remove(subscriptions[event], index)
+function unsubscribe(service, ip)
+    if subscriptions[service] then
+        for currIp,value in ipairs(subscriptions[service]) do
+            if value.isOutdated(value) or currIp == ip then
+                table.remove(subscriptions[service], index)
             end
         end
     end
 end
 
-function getServiceSubscriptions(event)
-    if subscriptions[event] then
-        for currCallback,value in ipairs(subscriptions[event]) do
+function getServiceSubscriptions(service)
+    if subscriptions[service] then
+        for currCallback,value in ipairs(subscriptions[service]) do
             if value.isOutdated(value) then
-                table.remove(subscriptions[event], currCallback)
+                table.remove(subscriptions[service], currCallback)
             end
         end
-        return subscriptions[event]
+        return subscriptions[service]
     else
         return {}
     end

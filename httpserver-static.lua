@@ -4,7 +4,7 @@
 
 return function(connection, args)
     local path = args.file
-    print("serving static file: "..path)
+    debug("serving static file: "..path)
     dofile("httpserver-header.lc")(connection, 200, args.ext)
     -- coroutine.yield()
     -- Send file in little chunks

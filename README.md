@@ -14,5 +14,5 @@ manual
  after establishing connection device will print its ip
  use browser or UPNP client to connect
  
- http://%nodemcu-ip%//http-file_list.lua will show you list of files on the device, all *.lc and *.lua files with name starting with "http" will will serve you http page
+ http://%nodemcu-ip%//http-file_list.lua will show you list of files on the device, all *.lc and *.lua files with name starting with "http" will be served as http page
  
