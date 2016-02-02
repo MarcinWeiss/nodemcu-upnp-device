@@ -11,16 +11,21 @@ local compileAndRemoveIfNeeded = function(f)
     end
 end
 
-local serverFiles = { 'httpserver.lua', 'httpserver-basicauth.lua', 'httpserver-b64decode.lua', 'httpserver-request.lua',
-    'httpserver-static.lua', 'httpserver-header.lua', 'httpserver-error.lua', 'upnp.lua', 'core.lua',
-    'wifi.lua', 'xml.lua', 'http-node_info.lua', 'http-file_list.lua'}
+local serverFiles = {
+    'httpserver.lua', 'httpserver-basicauth.lua', 'httpserver-b64decode.lua',
+    'httpserver-request.lua', 'httpserver-static.lua', 'httpserver-header.lua',
+    'httpserver-error.lua', 'upnp.lua', 'core.lua',
+    'wifi.lua', 'xml.lua', 'http-node_info.lua',
+    'http-file_list.lua', 'urls.lua'
+}
+
 for _, f in ipairs(serverFiles) do compileAndRemoveIfNeeded(f) end
 
 local setUuidInXml = function(filename)
-    file.rename(filename, filename.."-temp")
+    file.rename(filename, filename .. "-temp")
     file.close()
 
-    file.open(filename.."-temp", "r")
+    file.open(filename .. "-temp", "r")
     local inData = {}
     local instr = file.readline()
     while instr do
@@ -32,13 +37,13 @@ local setUuidInXml = function(filename)
 
     file.open(filename, "w")
     for _, line in ipairs(inData) do
-        file.write(string.gsub(line, "<UDN>uuid:.-</UDN>", "<UDN>uuid:"..wifi.ap.getmac().."</UDN>"))
+        file.write(string.gsub(line, "<UDN>uuid:.-</UDN>", "<UDN>uuid:" .. wifi.ap.getmac() .. "</UDN>"))
     end
     file.close()
 
-    file.remove(filename.."-temp")
+    file.remove(filename .. "-temp")
 end
-local xmlFiles = { 'ColorLight.xml'}
+local xmlFiles = { 'ColorLight.xml' }
 for _, f in ipairs(xmlFiles) do setUuidInXml(f) end
 
 compileAndRemoveIfNeeded = nil

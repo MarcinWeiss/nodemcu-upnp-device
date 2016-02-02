@@ -3,8 +3,8 @@
 
 -- Starts web server in the specified port.
 return function(port)
-    local urls = dofile("urls.lua")
-    local s = net.createServer(net.TCP, 10) -- 10 seconds client timeout
+    local urls = dofile("urls.lc")
+    local s = net.createServer(net.TCP, 10)
     s:listen(port,
         function(connection)
 
@@ -26,28 +26,24 @@ return function(port)
             local function onSubscribe(connection, uri, args, reqIp)
                 local callback = args["Callback"]:match("<(.*)>")
                 local timeoutUnit, timeout = args["Timeout"]:match("%s?(.*)%-(.*)$")
-                debug(uri)
-                debug(callback)
-                debug(timeout)
-                debug(reqIp)
-                if timeoutUnit=="Minute" then
-                    timeout = timeout*60
-                elseif timeout=="Hout" then
-                    timeout = timeout*360
+
+                if timeoutUnit == "Minute" then
+                    timeout = timeout * 60
+                elseif timeout == "Hout" then
+                    timeout = timeout * 360
                 end
                 subscribe(timeout, uri, callback, reqIp)
 
                 local fileServeFunction = function(connection, args)
-                    connection:send("HTTP/1.0 200 OK\r\nServer: nodemcu-httpserver\r\nCONTENT-LENGTH: 0\r\nTIMEOUT: "..
-                            timeoutUnit.."-"..timeout.."\r\nSID: uuid:"..wifi.ap.getmac().."\r\nConnection: close\r\n\r\n")
+                    connection:send("HTTP/1.0 200 OK\r\nServer: nodemcu-httpserver\r\nCONTENT-LENGTH: 0\r\nTIMEOUT: " ..
+                            timeoutUnit .. "-" .. timeout .. "\r\nSID: uuid:" .. wifi.ap.getmac() .. "\r\nConnection: close\r\n\r\n")
                 end
                 connectionThread = coroutine.create(fileServeFunction)
                 coroutine.resume(connectionThread, connection, args)
             end
 
             local function onUnsubscribe(connection, uri, args, reqIp)
-                debug(uri)
-                debug(reqIp)
+
                 unsubscribe(uri, reqIp)
 
                 local fileServeFunction = function(connection, args)
@@ -58,17 +54,12 @@ return function(port)
             end
 
             local function onPost(connection, uri, args, body)
-                collectgarbage()
                 local fileServeFunction = nil
                 local ServiceId, xmlargs = dofile("xml.lc")(body)
-                for k,v in pairs(xmlargs) do
+                for k, v in pairs(xmlargs) do
                     args[k] = v
                 end
-                debug(uri)
-                debug(ServiceId)
-                for k,v in pairs(args) do
-                    print(k.." "..v)
-                end
+
                 args["resultType"] = "xml"
                 args["serviceId"] = ServiceId
 
@@ -77,12 +68,12 @@ return function(port)
                     args = { code = 414, errorString = "Request-URI Too Long" }
                     fileServeFunction = dofile("httpserver-error.lc")
                 else
-                    local altUri = urls[(#(uri)>0) and uri or ServiceId]
+                    local altUri = urls[(#(uri) > 0) and uri or ServiceId]
                     if altUri then
                         uri = altUri
                     end
-                    debug(uri)
                     local extension = uri:match(".+%.(.+)")
+                    print(uri)
                     if not fileExists(uri) then
                         args = { code = 404, errorString = "Not Found" }
                         fileServeFunction = dofile("httpserver-error.lc")
@@ -98,8 +89,6 @@ return function(port)
             end
 
             local function onGet(connection, uri, args)
-                debug("onGet")
-                collectgarbage()
                 local fileServeFunction = nil
                 if #(uri) > 32 then
                     -- nodemcu-firmware cannot handle long filenames.
@@ -126,18 +115,14 @@ return function(port)
             end
 
             local function onReceive(connection, payload)
-                collectgarbage()
-                local auth
-                debug("-------")
-                debug("new request")
-                debug(payload)
+                print(node.heap())
                 local reqIp = connection:getpeer()
                 local method, path, args, isComplete, isHeadless, contentLength = dofile("httpserver-request.lc")(payload)
                 if isHeadless and bodylessRequests[reqIp] then
-                    local newMethod, newPath, newArgs, newIsComplete, newIsHeadless, newContentLength = dofile("httpserver-request.lc")(bodylessRequests[reqIp]..payload)
+                    local newMethod, newPath, newArgs, newIsComplete, newIsHeadless, newContentLength = dofile("httpserver-request.lc")(bodylessRequests[reqIp] .. payload)
                     if newIsComplete then
                         method, path, args, isComplete, isHeadless, contentLength = newMethod, newPath, newArgs, newIsComplete, newIsHeadless, newContentLength
-                        payload = bodylessRequests[reqIp]..payload
+                        payload = bodylessRequests[reqIp] .. payload
                         bodylessRequests[reqIp] = nil
                     end
                 end
@@ -152,20 +137,17 @@ return function(port)
                         bodylessRequests[reqIp] = payload
                     else
                         if bodylessRequests[reqIp].find("\r\n\r\n") == 1 then
-                            bodylessRequests[reqIp] = bodylessRequests[reqIp].."\r\n\r\n"
+                            bodylessRequests[reqIp] = bodylessRequests[reqIp] .. "\r\n\r\n"
                         end
-                        bodylessRequests[reqIp] = bodylessRequests[reqIp]..payload
+                        bodylessRequests[reqIp] = bodylessRequests[reqIp] .. payload
                     end
                 elseif method == "GET" then
                     onGet(connection, path, args)
                 elseif method == "POST" then
-                    debug("post")
-                    debug("post")
                     onPost(connection, path, args, payload:match("\r\n\r\n(.*)"))
-                elseif method =="SUBSCRIBE" then
+                elseif method == "SUBSCRIBE" then
                     onSubscribe(connection, path, args, reqIp)
-
-                elseif method =="UNSUBSCRIBE" then
+                elseif method == "UNSUBSCRIBE" then
                     onUnsubscribe(connection, path, args, reqIp)
                 else
                     local args = { code = 400, errorString = "Bad Request" }

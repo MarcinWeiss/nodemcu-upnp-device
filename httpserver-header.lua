@@ -2,7 +2,7 @@
 -- Part of nodemcu-httpserver, knows how to send an HTTP header.
 -- Author: Marcos Kirsch
 
-return function(connection, code, extension)
+return function(code, extension)
 
     local function getHTTPStatusString(code)
         local codez = {}
@@ -54,9 +54,9 @@ return function(connection, code, extension)
 
     if extension then
         local mimeType = getMimeType(extension)
-        connection:send(getHeader(code, mimeType))
+        return getHeader(code, mimeType)
     else
-        connection:send(getHeader(code))
+        return getHeader(code)
     end
 end
 
