@@ -76,7 +76,8 @@ return function(connection, args)
                                 "</e:property>\r\n" ..
                                 "</e:propertyset>"
 
-                        local header = "HOST: "..subscribentsCallback.match("http://(.-)/.*").."\r\nContent-Type: text/xml\r\nNT: upnp:event\r\nNTS: upnp:propchange\r\nSID: uuid:"..wifi.ap.getmac().."\r\nSEQ: ChangeColor"
+                        local host = subscribentsCallback:match("http://(.-)/.*")
+                        local header = "HOST: "..host.."\r\nContent-Type: text/xml\r\nNT: upnp:event\r\nNTS: upnp:propchange\r\nSID: uuid:"..wifi.ap.getmac().."\r\nSEQ: ChangeColor"
                         http.request(subscribentsCallback, "NOTIFY", header, notificationBody, self.getNextCallback(self))
                     end
                 else
