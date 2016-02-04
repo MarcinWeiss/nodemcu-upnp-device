@@ -35,9 +35,11 @@ local setUuidInXml = function(filename)
     file.close()
 
 
+    local mac = wifi.ap.getmac()
+    mac = mac:gsub(":", "-")
     file.open(filename, "w")
     for _, line in ipairs(inData) do
-        file.write(string.gsub(line, "<UDN>uuid:.-</UDN>", "<UDN>uuid:" .. wifi.ap.getmac() .. "</UDN>"))
+        file.write(string.gsub(line, "<UDN>uuid:.-</UDN>", "<UDN>uuid:" .. mac .. "</UDN>"))
     end
     file.close()
 

@@ -66,23 +66,22 @@ return function(connection, args)
 
                         local notificationBody = "<e:propertyset xmlns:e=\"urn:schemas-upnp-org:event-1-0\">\r\n" ..
                                 "<e:property>\r\n" ..
-                                "<R>" .. values.r .. "</R>\r\n" ..
+                                "<r>" .. values.r .. "</r>\r\n" ..
                                 "</e:property>\r\n" ..
                                 "<e:property>\r\n" ..
-                                "<G>" .. values.g .. "</G>\r\n" ..
+                                "<g>" .. values.g .. "</g>\r\n" ..
                                 "</e:property>\r\n" ..
                                 "<e:property>\r\n" ..
-                                "<B>" .. values.b .. "</B>\r\n" ..
+                                "<b>" .. values.b .. "</b>\r\n" ..
                                 "</e:property>\r\n" ..
                                 "</e:propertyset>"
 
-                        local host = subscribentsCallback:match("http://(.-)/.*")
-                        local header = "HOST: "..host.."\r\nContent-Type: text/xml\r\nNT: upnp:event\r\nNTS: upnp:propchange\r\nSID: uuid:"..wifi.ap.getmac().."\r\nSEQ: ChangeColor"
+                        local header = "CONTENT-TYPE: text/xml; charset=\"utf-8\"\r\nNT: upnp:event\r\nNTS: upnp:propchange\r\nSID: uuid:" .. wifi.ap.getmac() .. "\r\nSEQ: 0\r\n"
                         http.request(subscribentsCallback, "NOTIFY", header, notificationBody, self.getNextCallback(self))
                     end
                 else
                     return function(code, data)
-                        print("done")
+                        print("done sending dotifications:")
                     end
                 end
             end
