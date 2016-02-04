@@ -16,7 +16,7 @@ local serverFiles = {
     'httpserver-request.lua', 'httpserver-static.lua', 'httpserver-header.lua',
     'httpserver-error.lua', 'upnp.lua', 'core.lua',
     'wifi.lua', 'xml.lua', 'http-node_info.lua',
-    'http-file_list.lua', 'urls.lua'
+    'http-file_list.lua', 'urls.lua', 'http-leds.lua'
 }
 
 for _, f in ipairs(serverFiles) do compileAndRemoveIfNeeded(f) end
