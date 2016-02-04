@@ -46,7 +46,7 @@ return function(connection, args)
         print("setRequest")
         local wasChanged = setColor(tonumber(args["r"]), tonumber(args["g"]), tonumber(args["b"]))
         local subscribents = getServiceSubscriptions("ChangeColor")
-        if wasChanged then
+        if wasChanged and table.getn(subscribents)>0 then
             print("sending subscriptions")
             local subscribentsCallbacks = {}
             local n = 0

@@ -12,7 +12,7 @@ local compileAndRemoveIfNeeded = function(f)
 end
 
 local serverFiles = {
-    'httpserver.lua', 'httpserver-basicauth.lua', 'httpserver-b64decode.lua',
+    'httpserver.lua', 'httpserver-b64decode.lua',
     'httpserver-request.lua', 'httpserver-static.lua', 'httpserver-header.lua',
     'httpserver-error.lua', 'upnp.lua', 'core.lua',
     'wifi.lua', 'xml.lua', 'http-node_info.lua',

@@ -1,8 +1,6 @@
 results = {}
 debug = true
 
-bodylessRequests = {}
-
 function debug(message)
     if (debug) then
         print(message)

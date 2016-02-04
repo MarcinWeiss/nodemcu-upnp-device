@@ -3,10 +3,13 @@
 
 -- Starts web server in the specified port.
 return function(port)
-    local urls = dofile("urls.lc")
+
     local s = net.createServer(net.TCP, 10)
     s:listen(port,
         function(connection)
+            local urls = dofile("urls.lc")
+
+            local bodylessRequests = {}
 
             -- This variable holds the thread used for sending data back to the user.
             -- We do it in a separate thread because we need to yield when sending lots
@@ -29,7 +32,7 @@ return function(port)
 
                 if timeoutUnit == "Minute" then
                     timeout = timeout * 60
-                elseif timeout == "Hout" then
+                elseif timeout == "Hour" then
                     timeout = timeout * 360
                 end
                 subscribe(timeout, uri, callback, reqIp)
