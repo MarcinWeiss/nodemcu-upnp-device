@@ -81,7 +81,7 @@ return function(connection, args)
                     end
                 else
                     return function(code, data)
-                        print("done sending dotifications:")
+                        print("done sending notifications:")
                     end
                 end
             end
