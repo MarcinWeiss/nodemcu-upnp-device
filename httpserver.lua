@@ -118,7 +118,6 @@ return function(port)
             end
 
             local function onReceive(connection, payload)
-                print(node.heap())
                 local reqIp = connection:getpeer()
                 local method, path, args, isComplete, isHeadless, contentLength = dofile("httpserver-request.lc")(payload)
                 if isHeadless and bodylessRequests[reqIp] then
@@ -129,11 +128,6 @@ return function(port)
                         bodylessRequests[reqIp] = nil
                     end
                 end
-
-                debug(method)
-                debug(path)
-                debug(reqIp)
-                debug("-------")
 
                 if not isComplete then
                     if not isHeadless then
