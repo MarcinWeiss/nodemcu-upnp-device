@@ -11,10 +11,6 @@ return function(connection, args)
     local continue = true
     local bytesSent = 0
     while continue do
-        collectgarbage()
-        -- NodeMCU file API lets you open 1 file at a time.
-        -- So we need to open, seek, close each time in order
-        -- to support multiple simultaneous clients.
         file.open(path)
         file.seek("set", bytesSent)
         local chunk = file.read(256)
