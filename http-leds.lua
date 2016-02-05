@@ -3,11 +3,6 @@ local gPin = 2
 local bPin = 3
 local wPin = 4
 
-if values == nil then
-    print("initializing values")
-    values = { r = 0, g = 0, b = 0 }
-end
-
 return function(connection, args)
 
     local function setColor(newR, newG, newB)
@@ -36,6 +31,7 @@ return function(connection, args)
             setpin(values.g - w, gPin)
             setpin(values.b - w, bPin)
             setpin(w, wPin, 0)
+            w = nil
             return true;
         else
             return false;
@@ -45,53 +41,22 @@ return function(connection, args)
     if args["r"] ~= nil and args["g"] ~= nil and args["b"] ~= nil then
         print("setRequest")
         local wasChanged = setColor(tonumber(args["r"]), tonumber(args["g"]), tonumber(args["b"]))
-        local subscribents = getServiceSubscriptions("ChangeColor")
-        if wasChanged and table.getn(subscribents)>0 then
-            print("sending subscriptions")
-            local subscribentsCallbacks = {}
-            local n = 0
-            for _, v in pairs(subscribents) do
-                n = n + 1
-                subscribentsCallbacks[n] = v.callback
-            end
-
-
-            local subscribentsIterator = { subscribentsCallbacks = subscribentsCallbacks, index = 0 }
-
-            function subscribentsIterator.getNextCallback(self)
-                self.index = self.index + 1
-                if self.index <= table.getn(self.subscribentsCallbacks) then
-                    return function(code, data)
-                        local subscribentsCallback = self.subscribentsCallbacks[self.index]
-
-                        local notificationBody = "<e:propertyset xmlns:e=\"urn:schemas-upnp-org:event-1-0\">\r\n" ..
-                                "<e:property>\r\n" ..
-                                "<r>" .. values.r .. "</r>\r\n" ..
-                                "</e:property>\r\n" ..
-                                "<e:property>\r\n" ..
-                                "<g>" .. values.g .. "</g>\r\n" ..
-                                "</e:property>\r\n" ..
-                                "<e:property>\r\n" ..
-                                "<b>" .. values.b .. "</b>\r\n" ..
-                                "</e:property>\r\n" ..
-                                "</e:propertyset>"
-
-                        local header = "CONTENT-TYPE: text/xml; charset=\"utf-8\"\r\nNT: upnp:event\r\nNTS: upnp:propchange\r\nSID: uuid:" .. wifi.ap.getmac() .. "\r\nSEQ: 0\r\n"
-                        http.request(subscribentsCallback, "NOTIFY", header, notificationBody, self.getNextCallback(self))
-                    end
-                else
-                    return function(code, data)
-                        print("done sending notifications:")
-                    end
-                end
-            end
-
-            function subscribentsIterator.notifySubscribents(self)
-                self.getNextCallback(self)(nil, nil)
-            end
-
-            subscribentsIterator.notifySubscribents(subscribentsIterator)
+        if wasChanged then
+            local notificationBody = "<e:propertyset xmlns:e=\"urn:schemas-upnp-org:event-1-0\">\r\n" ..
+                    "<e:property>\r\n" ..
+                    "<r>" .. values.r .. "</r>\r\n" ..
+                    "</e:property>\r\n" ..
+                    "<e:property>\r\n" ..
+                    "<g>" .. values.g .. "</g>\r\n" ..
+                    "</e:property>\r\n" ..
+                    "<e:property>\r\n" ..
+                    "<b>" .. values.b .. "</b>\r\n" ..
+                    "</e:property>\r\n" ..
+                    "</e:propertyset>"
+            addNotificationToQueue("ChangeColor", notificationBody)
+            notificationBody = nil
         end
+        wasChanged = nil
     else
         print("getRequest")
     end
@@ -106,6 +71,7 @@ return function(connection, args)
         buf = buf .. "</u:" .. args["serviceId"] .. "Response>"
         buf = buf .. "</s:Body></s:Envelope>"
         connection:send(buf)
+        buf = nil
     else
         local buf = dofile("httpserver-header.lc")(200, "html")
         buf = buf .. "<h1> RGB Led light </h1><input id=\"colorPicker\" type=\"color\" name=\"favcolor\" value=\"#000000\" onchange=\"myFunction()\">"
@@ -125,6 +91,6 @@ return function(connection, args)
         buf = buf .. "myFunction();"
         buf = buf .. "</script>"
         connection:send(buf)
+        buf = nil
     end
-    collectgarbage()
 end

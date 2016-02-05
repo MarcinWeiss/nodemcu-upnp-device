@@ -12,7 +12,7 @@ local compileAndRemoveIfNeeded = function(f)
 end
 
 local serverFiles = {
-    'httpserver.lua', 'httpserver-b64decode.lua',
+    'httpserver.lua', 'httpserver-b64decode.lua', 'init-leds.lua',
     'httpserver-request.lua', 'httpserver-static.lua', 'httpserver-header.lua',
     'httpserver-error.lua', 'upnp.lua', 'core.lua',
     'wifi.lua', 'xml.lua', 'http-node_info.lua',
@@ -65,5 +65,6 @@ tmr.alarm(0, 100, 1, function()
         tmr.stop(0)
         dofile("httpserver.lc")(80)
         dofile("upnp.lc")
+        dofile("init-leds.lc")
     end
 end)
